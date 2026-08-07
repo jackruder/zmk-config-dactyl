@@ -1,0 +1,39 @@
+#include <behaviors.dtsi>
+#include <dt-bindings/zmk/keys.h>
+#include <dt-bindings/zmk/bt.h>
+
+// DIAGNOSTIC KEYMAP
+// -----------------
+// Every physical position outputs a unique character so you can verify
+// wiring by pressing each key in physical order and reading the output.
+//
+// Left half layout (26 keys). Right half assigned distinct chars too, so
+// once the right half is wired you can reuse this keymap for its bring-up.
+//
+//   Left top row:      Q W E R T Y
+//   Left middle row:   A S D F G H
+//   Left home row:     Z X C V B N
+//   Left extras (r3):        1 2
+//   Left thumb (r4):   3 4 5 6 7 8
+//
+//   Right top row:     U I O P LBKT RBKT
+//   Right middle row:  J K L SEMI SQT BSLH
+//   Right home row:    M COMMA DOT FSLH MINUS EQUAL
+//   Right extras:            9 0
+//   Right thumb:       F1 F2 F3 F4 F5 F6
+
+/ {
+    keymap {
+        compatible = "zmk,keymap";
+
+        default_layer {
+            bindings = <
+&kp Q     &kp W     &kp E     &kp R     &kp T     &kp Y         &kp U       &kp I       &kp O       &kp P       &kp LBKT    &kp RBKT
+&kp A     &kp S     &kp D     &kp F     &kp G     &kp H         &kp J       &kp K       &kp L       &kp SEMI    &kp SQT     &kp BSLH
+&kp Z     &kp X     &kp C     &kp V     &kp B     &kp N         &kp M       &kp COMMA   &kp DOT     &kp FSLH    &kp MINUS   &kp EQUAL
+                    &kp N1    &kp N2                                                     &kp N9      &kp N0
+&kp N3    &kp N4    &kp N5    &kp N6    &kp N7    &kp N8        &kp F1      &kp F2      &kp F3      &kp F4      &kp F5      &kp F6
+            >;
+        };
+    };
+};
