@@ -11,17 +11,9 @@
         columns = <12>;
         rows = <5>;
         // Left half: cols 0-5 (D4..D9 outer-pinky to inner-index)
-        // Right half: cols 6-11 (right's D4..D9 mapped to combined cols 6..11)
+        // Right half: cols 6-11 (right's D4..D9 offset by 6 in combined space)
         //
-        // Physical column layout per half (left half shown, right mirrors):
-        //   col 0: pinky outer   (D4)
-        //   col 1: pinky         (D5)
-        //   col 2: ring          (D6)
-        //   col 3: middle        (D7)
-        //   col 4: index         (D8)
-        //   col 5: index inner   (D9)
-        //
-        // Row 3 (extras) populated only under ring/middle (cols 2,3)
+        // Row 3 (extras) populated only under ring/middle (cols 2,3 on each half)
         // Row 4 = thumb cluster, all 6 cols populated
         map = <
             RC(0,0) RC(0,1) RC(0,2) RC(0,3) RC(0,4) RC(0,5)   RC(0,6) RC(0,7) RC(0,8) RC(0,9) RC(0,10) RC(0,11)
@@ -30,5 +22,29 @@
                             RC(3,2) RC(3,3)                                   RC(3,8) RC(3,9)
             RC(4,0) RC(4,1) RC(4,2) RC(4,3) RC(4,4) RC(4,5)   RC(4,6) RC(4,7) RC(4,8) RC(4,9) RC(4,10) RC(4,11)
         >;
+    };
+
+    // Base kscan node. Cols are identical on both halves.
+    // Rows are added per-half in the *_left.overlay / *_right.overlay files.
+    kscan0: kscan {
+        compatible = "zmk,kscan-gpio-matrix";
+        label = "KSCAN";
+        diode-direction = "col2row";
+
+        // Columns, left-to-right on the left half (pinky-outer -> index-inner)
+        //   D4  pinky outer
+        //   D5  pinky
+        //   D6  ring
+        //   D7  middle
+        //   D8  index
+        //   D9  index inner
+        col-gpios
+            = <&pro_micro 4 GPIO_ACTIVE_HIGH>
+            , <&pro_micro 5 GPIO_ACTIVE_HIGH>
+            , <&pro_micro 6 GPIO_ACTIVE_HIGH>
+            , <&pro_micro 7 GPIO_ACTIVE_HIGH>
+            , <&pro_micro 8 GPIO_ACTIVE_HIGH>
+            , <&pro_micro 9 GPIO_ACTIVE_HIGH>
+            ;
     };
 };

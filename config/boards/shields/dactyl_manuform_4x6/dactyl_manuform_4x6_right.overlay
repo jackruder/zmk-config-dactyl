@@ -1,28 +1,8 @@
 #include "dactyl_manuform_4x6.dtsi"
 
-// PLACEHOLDER: assumes right half is wired symmetrically to left,
-// i.e. the same ProMicro D-numbers connect to the equivalent rows and cols
-// on the right MCU. Because the right half is physically mirrored, the
-// right MCU's "col 0" (D4) sits under the pinky-outer on the RIGHT side.
-//
-// When you wire the right half:
-//   1. Confirm the pin choices below actually match what you soldered.
-//   2. If you deviated from left, edit these two GPIO lists.
-
+// PLACEHOLDER: assumes right half is wired to the same D-pin numbers as left.
+// If your right-half wiring uses different pins, edit the list below.
 &kscan0 {
-    compatible = "zmk,kscan-gpio-matrix";
-    label = "KSCAN";
-    diode-direction = "col2row";
-
-    col-gpios
-        = <&pro_micro 4 GPIO_ACTIVE_HIGH>
-        , <&pro_micro 5 GPIO_ACTIVE_HIGH>
-        , <&pro_micro 6 GPIO_ACTIVE_HIGH>
-        , <&pro_micro 7 GPIO_ACTIVE_HIGH>
-        , <&pro_micro 8 GPIO_ACTIVE_HIGH>
-        , <&pro_micro 9 GPIO_ACTIVE_HIGH>
-        ;
-
     row-gpios
         = <&pro_micro 10 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
         , <&pro_micro 16 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
