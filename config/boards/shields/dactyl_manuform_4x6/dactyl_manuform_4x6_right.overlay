@@ -1,8 +1,32 @@
 #include "dactyl_manuform_4x6.dtsi"
 
-// PLACEHOLDER: assumes right half is wired to the same D-pin numbers as left.
-// If your right-half wiring uses different pins, edit the list below.
+// Peripheral applies its own matrix-transform locally, then sends the
+// resulting position number over BLE. col-offset = 6 shifts the right
+// half's locally-scanned cols 0..5 into combined cols 6..11.
+&default_transform {
+    col-offset = <6>;
+};
+
 &kscan0 {
+    // Col GPIOs REVERSED so that local col 0 = physical inner-index
+    // (leftmost of the right half, adjacent to split gap). That way the
+    // combined transform reads left-to-right physically across both halves.
+    //
+    //   local col 0  -> combined col 6  -> D9  (index inner)
+    //   local col 1  -> combined col 7  -> D8  (index)
+    //   local col 2  -> combined col 8  -> D7  (middle)
+    //   local col 3  -> combined col 9  -> D6  (ring)
+    //   local col 4  -> combined col 10 -> D5  (pinky)
+    //   local col 5  -> combined col 11 -> D4  (pinky outer)
+    col-gpios
+        = <&pro_micro 9 GPIO_ACTIVE_HIGH>
+        , <&pro_micro 8 GPIO_ACTIVE_HIGH>
+        , <&pro_micro 7 GPIO_ACTIVE_HIGH>
+        , <&pro_micro 6 GPIO_ACTIVE_HIGH>
+        , <&pro_micro 5 GPIO_ACTIVE_HIGH>
+        , <&pro_micro 4 GPIO_ACTIVE_HIGH>
+        ;
+
     row-gpios
         = <&pro_micro 10 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
         , <&pro_micro 16 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
