@@ -4,6 +4,9 @@
 #include <dt-bindings/zmk/outputs.h>
 #include <behaviors/unicode.dtsi>   // urob/zmk-unicode: &uc for Unicode input
 #include "math_symbols.h"           // G_* / M_* / S_* / A_* / R_* / B_* macros
+#include "math_calligraphic.h"      // MC_A .. MC_Z (𝒜 .. 𝒵)
+#include "math_doublestruck.h"      // MB_A .. MB_Z (𝔸 .. ℤ)
+#include "math_fraktur.h"           // MF_A .. MF_Z (𝔞 .. ℨ)
 
 // Programmer Dvorak base keymap (Option B: firmware sends Dvorak character
 // names, host OS on plain US QWERTY when using this keyboard).
@@ -33,6 +36,14 @@
 //              two symbols per key: e.g., a=α/∀, d=δ/Δ, o=ω/Ω. Requires an
 //              IBus-capable Linux input method (UC_MODE_LINUX). Other modes
 //              switchable at runtime via &uc UC_SET_*.
+//   9 MCAL   — Mathematical Script (\mathcal): 𝒜 .. 𝒵. Access: from MATH,
+//              tap L ext ring (position 36) — arms one-shot MCAL for the
+//              next letter press. Uppercase-only.
+//  10 MBB    — Double-Struck (\mathbb): 𝔸 .. ℤ. Access: from MATH, tap L
+//              ext middle (position 37). Uppercase-only.
+//  11 MFRK   — Fraktur (\mathfrak): 𝔞/𝔄 .. 𝔷/ℨ. Access: from MATH, tap R
+//              ext middle (position 38). Includes lowercase (used for Lie
+//              algebras) on tap; uppercase on shift.
 //
 // The matrix transform (see the shield .dtsi) has been reordered so bindings
 // below are written in PHYSICAL rather than matrix-scan order. Each layer
@@ -63,6 +74,9 @@
 #define QWERTY 6
 #define ALT    7
 #define MATH   8
+#define MCAL   9
+#define MBB    10
+#define MFRK   11
 
 // Position groups in the physical-order transform (see .dtsi):
 //   alphabet:  0..5  L row 0     6..11 R row 0
@@ -361,6 +375,53 @@
 &trans     &trans      &trans      M_LDOTS     G_PI        G_PSI           G_PHI       G_GAMMA     &trans      G_RHO       G_LAMBDA    &trans
 &trans     G_ALPHA     G_OMEGA     G_EPS       G_UPS       &trans          G_DELTA     G_ETA       G_TAU       G_NU        G_SIGMA     &trans
 &trans     M_PRIME     G_THETA     &trans      G_KAPPA     G_CHI           G_BETA      G_MU        G_XI        S_OR        G_ZETA      &trans
+
+                       &sl MCAL    &sl MBB                                                         &sl MFRK    &trans
+
+                                   &trans          &trans              &trans          &trans
+                                               &trans      &trans          &trans      &trans
+                                               &trans      &trans          &trans      &trans
+            >;
+        };
+
+        // MCAL — Mathematical Script (\mathcal). Uppercase-only.
+        // Positions aligned to Dvorak base: A → 𝒜, B → ℬ, ..., Z → 𝒵.
+        mcal_layer {
+            bindings = <
+&trans     &trans      &trans      &trans      MC_P        MC_Y            MC_F        MC_G        MC_C        MC_R        MC_L        &trans
+&trans     MC_A        MC_O        MC_E        MC_U        MC_I            MC_D        MC_H        MC_T        MC_N        MC_S        &trans
+&trans     &trans      MC_Q        MC_J        MC_K        MC_X            MC_B        MC_M        MC_W        MC_V        MC_Z        &trans
+
+                       &trans      &trans                                                          &trans      &trans
+
+                                   &trans          &trans              &trans          &trans
+                                               &trans      &trans          &trans      &trans
+                                               &trans      &trans          &trans      &trans
+            >;
+        };
+
+        // MBB — Double-Struck (\mathbb). Uppercase-only.
+        mbb_layer {
+            bindings = <
+&trans     &trans      &trans      &trans      MB_P        MB_Y            MB_F        MB_G        MB_C        MB_R        MB_L        &trans
+&trans     MB_A        MB_O        MB_E        MB_U        MB_I            MB_D        MB_H        MB_T        MB_N        MB_S        &trans
+&trans     &trans      MB_Q        MB_J        MB_K        MB_X            MB_B        MB_M        MB_W        MB_V        MB_Z        &trans
+
+                       &trans      &trans                                                          &trans      &trans
+
+                                   &trans          &trans              &trans          &trans
+                                               &trans      &trans          &trans      &trans
+                                               &trans      &trans          &trans      &trans
+            >;
+        };
+
+        // MFRK — Fraktur (\mathfrak). Tap = lowercase (useful for Lie
+        // algebras: 𝔤 𝔥 etc.); shift-tap = uppercase (𝔄 𝔅 ...).
+        mfrk_layer {
+            bindings = <
+&trans     &trans      &trans      &trans      MF_P        MF_Y            MF_F        MF_G        MF_C        MF_R        MF_L        &trans
+&trans     MF_A        MF_O        MF_E        MF_U        MF_I            MF_D        MF_H        MF_T        MF_N        MF_S        &trans
+&trans     &trans      MF_Q        MF_J        MF_K        MF_X            MF_B        MF_M        MF_W        MF_V        MF_Z        &trans
 
                        &trans      &trans                                                          &trans      &trans
 
