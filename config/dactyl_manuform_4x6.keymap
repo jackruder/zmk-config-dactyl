@@ -14,14 +14,32 @@
 //   4 QWERTY — standard QWERTY alphabet
 //              ADJUST top-right corner switches TO QWERTY,
 //              ADJUST top-left corner switches BACK to BASE.
+//   5 NUM    — numpad / number entry. Entered by holding L or R mid-inner
+//              thumb (which tap to ESC or ENTER respectively).
+//   6 FN     — function / media keys. Chained from NAV: while NAV is held,
+//              L top-inner (BSPC pos) taps to DEL / holds to FN;
+//              R top-inner (SPACE pos) is momentary FN.
+//   7 ALT    — alternate alphabet layout from cyanophage.github.io/playground.
+//              Enter via ADJUST + row 1 col 11 (&to ALT). Return via ADJUST
+//              + &to BASE. Same thumb/ext bindings as BASE. HRMs on ring/
+//              middle/index home row (t/s/g on left, e/i/a on right).
 //
-// Physical layout (per verified transform):
-//   Row 0 (top):   TAB   ;   ,   .   P   Y   |   F   G   C   R   L   /
-//   Row 1 (home):  ESC   A   O   E   U   I   |   D   H   T   N   S   -
-//   Row 2 (bot):   LSFT  '   Q   J   K   X   |   B   M   W   V   Z   RSFT
-//   Row 3 (D15):   NAV SYM SPC BSPC TAB ENT SYM NAV
-//                  ↑───ext───↑ ↑───thumb───↑ ↑───ext───↑
-//   Row 4 (D18):   GUI CTL ALT DEL DEL ALT CTL GUI      (all thumb, "tricky")
+// The matrix transform (see the shield .dtsi) has been reordered so bindings
+// below are written in PHYSICAL rather than matrix-scan order. Each layer
+// has 7 visual lines:
+//
+//   Rows 0-2   alphabet: 6 keys per half (row-major).
+//   ext line   the two per half on the thumb-row wiring that sit under
+//              middle/ring finger, NOT on the thumb pod. Placed far apart
+//              to reflect that they're on opposite halves under fingers.
+//   top thumb  the 2 easy sweep-friendly keys per half (top of thumb pod).
+//   mid thumb  the 2 middle keys per half — inner one is sweep-friendly.
+//   bot thumb  the 2 further-reach keys per half.
+//
+// Left thumb pod physical shape (right is mirrored):
+//   [top1  top2]           <- RC(3,4) RC(3,5)
+//       [mid1 mid2]        <- RC(4,4) RC(4,5)
+//       [bot1 bot2]        <- RC(4,2) RC(4,3)
 
 // missing: CARET
 // missing: backtick
@@ -29,8 +47,44 @@
 #define BASE   0
 #define SYM    1
 #define NAV    2
-#define ADJUST 3
-#define QWERTY 4
+#define NUM    3
+#define FN     4
+#define ADJUST 5
+#define QWERTY 6
+#define ALT    7
+
+// Position groups in the physical-order transform (see .dtsi):
+//   alphabet:  0..5  L row 0     6..11 R row 0
+//              12..17 L row 1    18..23 R row 1
+//              24..29 L row 2    30..35 R row 2
+//   thumb region (rows 3-4 in matrix):
+//              36 37  ext L (ring, middle)     38 39  ext R (middle, ring)
+//              40 41  top L thumb              42 43  top R thumb
+//              44 45  mid L thumb              46 47  mid R thumb
+//              48 49  bot L thumb              50 51  bot R thumb
+#define KEYS_L    0  1  2  3  4  5 12 13 14 15 16 17 24 25 26 27 28 29
+#define KEYS_R    6  7  8  9 10 11 18 19 20 21 22 23 30 31 32 33 34 35
+#define THUMBS   36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51
+
+// NAV layer aliases — short names so bindings fit in the 12-char cell width.
+//
+// Editor shortcuts (LC(*)):
+#define X_UNDO   &kp LC(Z)
+#define X_CUT    &kp LC(X)
+#define X_COPY   &kp LC(C)
+#define X_PASTE  &kp LC(V)
+#define X_REDO   &kp LC(Y)
+
+// ADJUST-layer thumb access (dactyl bonus; smaller boards still use the
+// SYM+NAV tri-layer fallback). Tap = one-shot ADJUST, hold = momentary.
+#define ADJ      &slh ADJUST ADJUST
+
+// Sticky-hybrid modifier fills for dactyl bot thumbs — tap = one-shot mod,
+// hold = held mod. Enables same-hand mod combos that HRM's positional
+// constraint blocks (e.g. Ctrl+D on left hand via RCTL held on right thumb).
+#define SALT     &sh LALT LALT
+#define SGUI     &sh LGUI LGUI
+#define SCTL     &sh RCTL RCTL
 
 / {
     conditional_layers {
@@ -41,46 +95,198 @@
         };
     };
 
+    behaviors {
+        // Tap-preferred hold-tap for home-row mods. Tap always wins unless
+        // held past tapping-term-ms with an interrupting keypress at an
+        // allowed (opposite-hand or thumb) position.
+        //   require-prior-idle-ms: suppress hold if any key was pressed in
+        //                          the last 125ms — kills typing-burst misfires.
+        //   quick-tap-ms: tap-then-hold within 175ms auto-repeats the tap
+        //                 keycode (useful for hjkl in vim).
+        // Split into left/right variants so each side allows only the
+        // opposite hand (+ thumbs) as valid interrupters.
+        tpl: tap_preferred_left {
+            compatible = "zmk,behavior-hold-tap";
+            #binding-cells = <2>;
+            flavor = "tap-preferred";
+            tapping-term-ms = <300>;
+            require-prior-idle-ms = <125>;
+            quick-tap-ms = <175>;
+            hold-trigger-key-positions = <KEYS_R THUMBS>;
+            bindings = <&kp>, <&kp>;
+        };
+
+        tpr: tap_preferred_right {
+            compatible = "zmk,behavior-hold-tap";
+            #binding-cells = <2>;
+            flavor = "tap-preferred";
+            tapping-term-ms = <300>;
+            require-prior-idle-ms = <125>;
+            quick-tap-ms = <175>;
+            hold-trigger-key-positions = <KEYS_L THUMBS>;
+            bindings = <&kp>, <&kp>;
+        };
+
+        // Sticky-hybrid modifier. Tap = one-shot mod (next key is modified,
+        // then the mod goes away). Hold = normal held mod. Hold-preferred
+        // so fast Shift+letter rollovers register as held shift.
+        //   Usage: &sh LSHFT LSHFT
+        sh: sticky_hold_mod {
+            compatible = "zmk,behavior-hold-tap";
+            #binding-cells = <2>;
+            flavor = "hold-preferred";
+            tapping-term-ms = <200>;
+            quick-tap-ms = <175>;
+            bindings = <&kp>, <&sk>;
+        };
+
+        // Sticky-hybrid layer. Tap = one-shot layer (next key comes from
+        // that layer, then base returns). Hold = momentary layer.
+        //   Usage: &slh SYM SYM
+        slh: sticky_hold_layer {
+            compatible = "zmk,behavior-hold-tap";
+            #binding-cells = <2>;
+            flavor = "hold-preferred";
+            tapping-term-ms = <200>;
+            bindings = <&mo>, <&sl>;
+        };
+
+        // Hold-preferred layer-tap: hold = layer, tap = key. Fires layer on
+        // any interrupt OR after tapping-term. Use for thumb keys where the
+        // tap is used deliberately (not in fast typing bursts) — e.g. BSPC.
+        //   Usage: &lh NAV BSPC
+        lh: layer_hold_preferred {
+            compatible = "zmk,behavior-hold-tap";
+            #binding-cells = <2>;
+            flavor = "hold-preferred";
+            tapping-term-ms = <200>;
+            bindings = <&mo>, <&kp>;
+        };
+
+        // Tap-preferred layer-tap: hold = layer, tap = key. Interrupts do
+        // NOT trigger hold — only holding past tapping-term does. Safer for
+        // fast-typed keys like SPACE.
+        //   Usage: &lt NAV SPACE
+        lt: layer_tap_preferred {
+            compatible = "zmk,behavior-hold-tap";
+            #binding-cells = <2>;
+            flavor = "tap-preferred";
+            tapping-term-ms = <300>;
+            require-prior-idle-ms = <125>;
+            bindings = <&mo>, <&kp>;
+        };
+
+        // Hold-preferred mod-tap for the NAV-layer home-row HRMs. Any
+        // interrupting keypress triggers the mod immediately (so mod+arrow
+        // combos work without waiting for tapping-term). Quick tap alone
+        // fires the tap keycode.
+        //   Usage: &hp LGUI C_AC_ZOOM_IN
+        hp: hp_hold_preferred_mod {
+            compatible = "zmk,behavior-hold-tap";
+            #binding-cells = <2>;
+            flavor = "hold-preferred";
+            tapping-term-ms = <150>;
+            bindings = <&kp>, <&kp>;
+        };
+    };
+
     keymap {
         compatible = "zmk,keymap";
 
         base_layer {
             bindings = <
-&kp TAB    &kp SEMI    &kp COMMA   &kp DOT     &kp P       &kp Y           &kp F       &kp G       &kp C       &kp R       &kp L       &kp FSLH
-&kp ESC    &kp A       &kp O       &kp E       &kp U       &kp I           &kp D       &kp H       &kp T       &kp N       &kp S       &kp MINUS
-&kp LSHFT  &kp SQT     &kp Q       &kp J       &kp K       &kp X           &kp B       &kp M       &kp W       &kp V       &kp Z       &kp BSLH
-                       &mo NAV     &mo SYM     &mo SYM     &kp ENTER       &kp LALT    &kp SPACE   &mo SYM     &mo NAV
-                       &kp LGUI    &kp LCTRL   &kp LALT    &kp LCTRL       &kp BSPC    &kp RALT    &kp RCTRL   &kp RGUI
+&kp CARET  &kp SEMI    &kp COMMA   &kp DOT     &kp P       &kp Y           &kp F       &kp G       &kp C       &kp R       &kp L       &kp UNDER
+&kp TAB    &kp A       &tpl LGUI O &tpl LALT E &tpl LCTL U &kp I           &kp D       &tpr RCTL H &tpr RALT T &tpr RGUI N &kp S       &kp BSLH
+&kp FSLH  &kp SQT     &kp Q       &kp J       &kp K       &kp X           &kp B       &kp M       &kp W       &kp V       &kp Z       &kp RSHFT
+
+                       &kp LEFT    &kp RIGHT                                                       &kp DOWN    &kp UP
+
+                                   &sh LSHFT LSHFT &lh NAV BSPC            &lt NAV SPACE   &slh SYM SYM
+                                               &kp F23     &lh NUM ESC     &lh NUM RET &kp F24
+                                               SALT        SGUI            ADJ         SCTL
             >;
         };
 
         sym_layer {
             bindings = <
-&kp DLLR   &kp N7      &kp N5      &kp N3      &kp N1      &kp N9          &kp N0      &kp N2      &kp N4      &kp N6      &kp N8      &kp AT
-&kp AMPS   &kp LBKT    &kp LBRC    &kp RBRC    &kp LPAR    &kp EQUAL       &kp STAR    &kp RPAR    &kp PLUS    &kp RBKT    &kp EXCL    &kp HASH      
-&kp CARET  &kp F1      &kp F2      &kp F3      &kp F4      &kp F5          &kp F6      &kp F7      &kp F8      &kp F9      &kp F10     &kp PRCNT
-                       &trans      &trans      &trans      &trans          &trans      &trans      &trans      &trans
-                       &trans      &trans      &trans      &trans          &trans      &trans      &trans      &trans
+&trans   &kp CARET   &kp LT      &kp GT      &kp DLLR    &kp PRCNT       &kp AT      &kp AMPS    &kp STAR    &kp SQT     &kp GRAVE   &trans
+&trans   &kp LPAR    &kp LBRC    &kp RBRC    &kp RPAR    &kp EQUAL       &kp BSLH    &kp PLUS    &kp MINUS   &kp FSLH    &kp HASH    &trans      
+&trans   &kp DQT     &kp LBKT    &kp RBKT    &kp CARET   &kp TILDE       &kp PIPE    &kp EXCL    &kp SEMI    &kp COLON   &kp QMARK   &trans
+
+                       &trans      &trans                                                          &trans      &trans
+
+                                   &slh NUM NUM    &kp SPACE           &trans          &trans
+                                               &trans      &kp ENTER       &trans      &trans
+                                               &trans      &trans          &trans      &trans
             >;
         };
 
+        // VIM_NAV layer, adapted from Selenium's HRM vim variant:
+        //   left hand  = editor / app-control shortcuts. Row 0: browser back/
+        //                fwd + ctl-w. Row 1: SAVE + ZOOM_IN/OUT + UNDO on the
+        //                HRM positions (LGUI/LALT/LCTL still available on
+        //                hold via &hp — arrow + mod works cross-hand).
+        //                Row 2: undo/cut/copy/paste/redo via LC(*).
+        //   right hand = arrows on home row, HOME/PG_DN/PG_UP/END on top,
+        //                DEL on right pinky. Row 2 reserved for mouse-scroll
+        //                if you later enable ZMK pointing (currently &none).
+        //   thumbs     = caps_word, chain into FN (see behavior comments).
         nav_layer {
             bindings = <
-&trans     &trans      &trans      &trans      &trans      &trans          &kp HOME    &kp PG_DN   &kp PG_UP   &kp END     &trans      &trans
-&trans     &kp LGUI    &kp LALT    &kp LCTRL   &kp LSHFT   &trans          &kp LEFT    &kp DOWN    &kp UP      &kp RIGHT   &trans      &trans
-&trans     &trans      &trans      &trans      &trans      &trans          &trans      &trans      &trans      &trans      &trans      &trans
-                       &trans      &trans      &trans      &trans          &trans      &trans      &trans      &trans
-                       &trans      &trans      &trans      &trans          &trans      &trans      &trans      &trans
+&trans     &none          &kp C_AC_CLOSE  &kp C_AC_BACK    &kp C_AC_FORWARD    &kp C_AC_OPEN                    &kp HOME    &kp PG_DN   &kp PG_UP   &kp END     &kp DEL     &trans
+&trans     &kp C_AC_SAVE  &hp LGUI C_AC_ZOOM_IN  &hp LALT C_AC_ZOOM_OUT  &hp LCTL C_AC_FAVORITES   &none           &kp LEFT    &kp DOWN    &kp UP      &kp RIGHT   &none       &trans
+&trans     &kp C_AC_UNDO  X_CUT       X_COPY      X_PASTE     X_REDO                   &none       &none       &none       &none       &none       &trans
+
+                       &trans      &trans                                                          &trans      &trans
+
+                                   &caps_word      &lh FN DEL          &mo FN          &trans
+                                               &trans      &trans          &trans      &trans
+                                               &trans      &trans          &trans      &trans
+            >;
+        };
+
+        // NUM layer — entered by holding L or R mid-inner thumb.
+        num_layer {
+            bindings = <
+&trans     &trans      &kp AT      &kp HASH      &kp PRCNT   &kp EXCL        &kp AMPS    &kp STAR    &kp LPAR    &kp RPAR    &trans      &trans
+&trans     &kp N7      &kp N5      &kp N3      &kp N1      &kp N9          &kp N0      &kp N2      &kp N4      &kp N6      &kp N8      &trans
+&trans     &trans      &trans      &trans      &trans      &kp UNDER       &kp CARET   &trans      &trans      &trans      &trans      &trans
+
+                       &trans      &trans                                                          &trans      &trans
+
+                                   &trans          &trans              &trans          &trans
+                                               &trans      &trans          &trans      &trans
+                                               &trans      &trans          &trans      &trans
+            >;
+        };
+
+        // FN layer — chained from NAV: while NAV is held, tap DEL or hold FN
+        // on L top-inner, or momentary FN on R top-inner.
+        fn_layer {
+            bindings = <
+&trans     &kp F11     &kp F12     &kp F13     &kp F14     &kp F15         &trans      &kp C_NEXT       &kp C_VOL_UP     &kp C_BRI_UP      &trans      &trans
+&trans     &kp F1      &kp F2      &kp F3      &kp F4      &kp F5          &trans      &kp C_PLAY_PAUSE &kp C_MUTE       &kp K_LOCK        &kp PRINTSCREEN &trans
+&trans     &kp F10     &kp F9      &kp F8      &kp F7      &kp F6          &trans      &kp C_PREV       &kp C_VOL_DN     &kp C_BRI_DN      &trans      &trans
+
+                       &trans      &trans                                                          &trans      &trans
+
+                                   &trans          &trans              &trans          &trans
+                                               &trans      &trans          &trans      &trans
+                                               &trans      &trans          &trans      &trans
             >;
         };
 
         adjust_layer {
             bindings = <
 &to BASE   &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_SEL 3 &bt BT_SEL 4  &trans      &trans      &trans      &trans      &trans    &to QWERTY
-&trans     &bt BT_CLR   &out OUT_TOG &sys_reset &trans     &trans          &trans      &trans      &trans      &trans      &trans      &trans
+&trans     &bt BT_CLR   &out OUT_TOG &sys_reset &trans     &trans          &trans      &trans      &trans      &trans      &trans      &to ALT
 &trans     &trans      &trans      &trans      &sys_reset  &bootloader     &bootloader &sys_reset  &trans      &trans      &trans      &trans
-                       &trans      &trans      &trans      &trans          &trans      &trans      &trans      &trans
-                       &trans      &trans      &trans      &trans          &trans      &trans      &trans      &trans
+
+                       &trans      &trans                                                          &trans      &trans
+
+                                   &trans          &trans              &trans          &trans
+                                               &trans      &trans          &trans      &trans
+                                               &trans      &trans          &trans      &trans
             >;
         };
 
@@ -89,10 +295,33 @@
         qwerty_layer {
             bindings = <
 &kp TAB    &kp Q       &kp W       &kp E       &kp R       &kp T           &kp Y       &kp U       &kp I       &kp O       &kp P       &kp LBKT
-&kp ESC    &kp A       &kp S       &kp D       &kp F       &kp G           &kp H       &kp J       &kp K       &kp L       &kp SEMI    &kp SQT
+&kp ESC    &kp A       &tpl LGUI S &tpl LALT D &tpl LCTL F &kp G           &kp H       &tpr RCTL J &tpr RALT K &tpr RGUI L &kp SEMI    &kp SQT
 &kp LSHFT  &kp Z       &kp X       &kp C       &kp V       &kp B           &kp N       &kp M       &kp COMMA   &kp DOT     &kp FSLH    &kp RSHFT
-                       &mo NAV     &mo SYM     &mo SYM     &kp ENTER       &kp LALT    &kp SPACE   &mo SYM     &mo NAV
-                       &kp LGUI    &kp LCTRL   &kp LALT    &kp LCTRL       &kp BSPC    &kp RALT    &kp RCTRL   &kp RGUI
+
+                       &kp LEFT    &kp RIGHT                                                       &kp DOWN    &kp UP
+
+                                   &sh LSHFT LSHFT &lh NAV BSPC        &lt NAV SPACE   &slh SYM SYM
+                                               &kp F23     &lh NUM ESC     &lh NUM RET &kp F24
+                                               SALT        SGUI            ADJ         SCTL
+            >;
+        };
+
+        // Alternate alphabet layout — from cyanophage.github.io/playground
+        //   layout=zldwbjfou;\nrtsgyheia'qxmcvkp/,.-^
+        // Cols 1-10 are the layout's 3x10 alpha grid; col 0 and col 11 are
+        // dactyl-only pinky-outer overrides matching BASE's LaTeX-friendly
+        // choices (CARET/TAB/FSLH on left; UNDER/SQT/RSHFT on right).
+        alt_layer {
+            bindings = <
+&kp CARET  &kp Z       &kp L       &kp D       &kp W       &kp B           &kp J       &kp F       &kp O       &kp U       &kp SEMI    &kp UNDER
+&kp TAB    &kp N       &kp R       &tpl LGUI T &tpl LALT S &tpl LCTL G     &kp Y       &tpr RCTL H &tpr RALT E &tpr RGUI I &kp A       &kp SQT 
+&kp FSLH   &kp Q       &kp X       &kp M       &kp C       &kp V           &kp K       &kp P       &kp BSLH    &kp COMMA   &kp DOT     &kp RSHFT
+
+                       &kp LEFT    &kp RIGHT                                                       &kp DOWN    &kp UP
+
+                                   &sh LSHFT LSHFT &lh NAV BSPC            &lt NAV SPACE   &slh SYM SYM
+                                               &kp F23     &lh NUM ESC     &lh NUM RET &kp F24
+                                               SALT        SGUI            ADJ         SCTL
             >;
         };
     };

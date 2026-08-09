@@ -1,7 +1,7 @@
 if SHIELD_DACTYL_MANUFORM_4X6_LEFT
 
 config ZMK_KEYBOARD_NAME
-    default "Dactyl 4x6"
+    default "oponn"
 
 config ZMK_SPLIT_ROLE_CENTRAL
     default y
