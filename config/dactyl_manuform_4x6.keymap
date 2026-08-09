@@ -167,8 +167,8 @@
         // Tap-preferred layer-tap: hold = layer, tap = key. Interrupts do
         // NOT trigger hold — only holding past tapping-term does. Safer for
         // fast-typed keys like SPACE.
-        //   Usage: &lt NAV SPACE
-        lt: layer_tap_preferred {
+        //   Usage: &ltp NAV SPACE
+        ltp: layer_tap_preferred {
             compatible = "zmk,behavior-hold-tap";
             #binding-cells = <2>;
             flavor = "tap-preferred";
@@ -202,7 +202,7 @@
 
                        &kp LEFT    &kp RIGHT                                                       &kp DOWN    &kp UP
 
-                                   &sh LSHFT LSHFT &lh NAV BSPC            &lt NAV SPACE   &slh SYM SYM
+                                   &sh LSHFT LSHFT &lh NAV BSPC            &ltp NAV SPACE   &slh SYM SYM
                                                &kp F23     &lh NUM ESC     &lh NUM RET &kp F24
                                                SALT        SGUI            ADJ         SCTL
             >;
@@ -301,7 +301,7 @@
 
                        &kp LEFT    &kp RIGHT                                                       &kp DOWN    &kp UP
 
-                                   &sh LSHFT LSHFT &lh NAV BSPC        &lt NAV SPACE   &slh SYM SYM
+                                   &sh LSHFT LSHFT &lh NAV BSPC        &ltp NAV SPACE   &slh SYM SYM
                                                &kp F23     &lh NUM ESC     &lh NUM RET &kp F24
                                                SALT        SGUI            ADJ         SCTL
             >;
@@ -320,7 +320,7 @@
 
                        &kp LEFT    &kp RIGHT                                                       &kp DOWN    &kp UP
 
-                                   &sh LSHFT LSHFT &lh NAV BSPC            &lt NAV SPACE   &slh SYM SYM
+                                   &sh LSHFT LSHFT &lh NAV BSPC            &ltp NAV SPACE   &slh SYM SYM
                                                &kp F23     &lh NUM ESC     &lh NUM RET &kp F24
                                                SALT        SGUI            ADJ         SCTL
             >;
