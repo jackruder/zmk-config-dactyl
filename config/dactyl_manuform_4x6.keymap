@@ -3,6 +3,7 @@
 #include <dt-bindings/zmk/bt.h>
 #include <dt-bindings/zmk/outputs.h>
 #include <behaviors/unicode.dtsi>   // urob/zmk-unicode: &uc for Unicode input
+#include "math_symbols.h"           // G_* / M_* / S_* / A_* / R_* / B_* macros
 
 // Programmer Dvorak base keymap (Option B: firmware sends Dvorak character
 // names, host OS on plain US QWERTY when using this keyboard).
@@ -105,36 +106,6 @@
 &uc {
     default-mode = <UC_MODE_LINUX>;
 };
-
-// MATH layer Unicode symbol macros. Each is `&uc CP_UNSHIFTED CP_SHIFTED`
-// mimicking cdlatex-math-symbol-alist first two entries per key.
-// G_ prefix = Greek letter (lowercase / uppercase-or-related).
-#define G_ALPHA   &uc 0x03B1 0x2200      // α / ∀
-#define G_BETA    &uc 0x03B2 0            // β
-#define G_GAMMA   &uc 0x03B3 0x0393       // γ / Γ
-#define G_DELTA   &uc 0x03B4 0x0394       // δ / Δ
-#define G_EPS     &uc 0x03B5 0x2203       // ε / ∃
-#define G_ZETA    &uc 0x03B6 0x2124       // ζ / ℤ
-#define G_ETA     &uc 0x03B7 0            // η
-#define G_THETA   &uc 0x03B8 0x0398       // θ / Θ
-#define G_KAPPA   &uc 0x03BA 0            // κ
-#define G_LAMBDA  &uc 0x03BB 0x039B       // λ / Λ
-#define G_MU      &uc 0x03BC 0            // μ
-#define G_NU      &uc 0x03BD 0x2115       // ν / ℕ
-#define G_XI      &uc 0x03BE 0x039E       // ξ / Ξ
-#define G_PI      &uc 0x03C0 0x03A0       // π / Π
-#define G_RHO     &uc 0x03C1 0x211D       // ρ / ℝ
-#define G_SIGMA   &uc 0x03C3 0x03A3       // σ / Σ
-#define G_TAU     &uc 0x03C4 0            // τ
-#define G_UPS     &uc 0x03C5 0x03A5       // υ / Υ
-#define G_PHI     &uc 0x03C6 0x03A6       // φ / Φ
-#define G_CHI     &uc 0x03C7 0            // χ
-#define G_PSI     &uc 0x03C8 0x03A8       // ψ / Ψ
-#define G_OMEGA   &uc 0x03C9 0x03A9       // ω / Ω
-// Non-Greek math symbols
-#define M_LDOTS   &uc 0x2026 0            // …
-#define M_PRIME   &uc 0x2032 0            // ′
-#define M_OR      &uc 0x2228 0            // ∨
 
 / {
     conditional_layers {
@@ -389,7 +360,7 @@
             bindings = <
 &trans     &trans      &trans      M_LDOTS     G_PI        G_PSI           G_PHI       G_GAMMA     &trans      G_RHO       G_LAMBDA    &trans
 &trans     G_ALPHA     G_OMEGA     G_EPS       G_UPS       &trans          G_DELTA     G_ETA       G_TAU       G_NU        G_SIGMA     &trans
-&trans     M_PRIME     G_THETA     &trans      G_KAPPA     G_CHI           G_BETA      G_MU        G_XI        M_OR        G_ZETA      &trans
+&trans     M_PRIME     G_THETA     &trans      G_KAPPA     G_CHI           G_BETA      G_MU        G_XI        S_OR        G_ZETA      &trans
 
                        &trans      &trans                                                          &trans      &trans
 
