@@ -10,7 +10,8 @@
 //   0 BASE   — Dvorak-Programmer alphabet
 //   1 SYM    — symbols on top row (Programmer Dvorak style), numbers on row 1
 //   2 NAV    — arrows on right home row, home/end/pgup/pgdn above
-//   3 ADJUST — BT profiles + output toggle + layout switch (tri-layer: SYM+NAV)
+//   3 ADJUST — BT profiles + output toggle + layout switch + &studio_unlock
+//              (tri-layer: SYM+NAV, or R bot-inner thumb via ADJ)
 //   4 QWERTY — standard QWERTY alphabet
 //              ADJUST top-right corner switches TO QWERTY,
 //              ADJUST top-left corner switches BACK to BASE.
@@ -279,7 +280,7 @@
         adjust_layer {
             bindings = <
 &to BASE   &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_SEL 3 &bt BT_SEL 4  &trans      &trans      &trans      &trans      &trans    &to QWERTY
-&trans     &bt BT_CLR   &out OUT_TOG &sys_reset &trans     &trans          &trans      &trans      &trans      &trans      &trans      &to ALT
+&trans     &bt BT_CLR   &out OUT_TOG &sys_reset &studio_unlock &trans      &trans      &trans      &trans      &trans      &trans      &to ALT
 &trans     &trans      &trans      &trans      &sys_reset  &bootloader     &bootloader &sys_reset  &trans      &trans      &trans      &trans
 
                        &trans      &trans                                                          &trans      &trans
