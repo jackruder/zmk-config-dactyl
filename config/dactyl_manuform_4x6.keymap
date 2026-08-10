@@ -353,7 +353,7 @@
             display-name = "Alt";
             bindings = <
 &kp CARET  &kp Z       &kp L       &kp D       &kp W       &kp B           &kp J       &kp F       &kp O       &kp U       &kp SEMI    &kp UNDER
-&kp TAB    &kp N       &kp R       &tpl LGUI T &tpl LALT S &tpl LCTL G     &kp Y       &tpr RCTL H &tpr RALT E &tpr RGUI I &kp A       &kp SQT 
+&kp TAB    &kp N       &tpl LGUI R &tpl LALT T &tpl LCTL S &kp G           &kp Y       &tpr RCTL H &tpr RALT E &tpr RGUI I &kp A       &kp SQT
 &kp FSLH   &kp Q       &kp X       &kp M       &kp C       &kp V           &kp K       &kp P       &kp BSLH    &kp COMMA   &kp DOT     &kp RSHFT
 
                        &kp LEFT    &kp RIGHT                                                       &kp DOWN    &kp UP
