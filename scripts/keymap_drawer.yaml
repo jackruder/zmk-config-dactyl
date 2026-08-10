@@ -1,0 +1,15 @@
+draw_config:
+  # Dark theme so it sits nicely alongside a dark editor / typing app.
+  dark_mode: true
+  # Roomier keys — HRMs need space for both tap and hold labels.
+  key_w: 68.0
+  key_h: 60.0
+  split_gap: 30.0
+  outer_pad_w: 20.0
+  outer_pad_h: 30.0
+  # Slightly larger legend text.
+  glyph_tap_size: 16
+  glyph_hold_size: 12
+  glyph_shifted_size: 11
+  svg_extra_style: |
+    svg.keymap { background: #1a1b26; }

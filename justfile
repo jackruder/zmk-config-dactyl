@@ -1,3 +1,7 @@
+# Regenerate docs/keymap.html — tabbed per-layer keymap reference.
+docs:
+    ./scripts/gen_keymap_reference.sh
+
 # Push HEAD, wait for CI to build firmware, notify + flash on success.
 ship:
     #!/usr/bin/env bash
