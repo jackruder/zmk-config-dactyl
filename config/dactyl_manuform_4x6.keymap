@@ -186,12 +186,16 @@
         // Hold-preferred layer-tap: hold = layer, tap = key. Fires layer on
         // any interrupt OR after tapping-term. Use for thumb keys where the
         // tap is used deliberately (not in fast typing bursts) — e.g. BSPC.
+        //   quick-tap-ms: tap-then-hold within 175ms auto-repeats the tap
+        //                 keycode (e.g., tap BSPC, then tap-and-hold to
+        //                 auto-repeat backspace).
         //   Usage: &lh NAV BSPC
         lh: layer_hold_preferred {
             compatible = "zmk,behavior-hold-tap";
             #binding-cells = <2>;
             flavor = "hold-preferred";
             tapping-term-ms = <200>;
+            quick-tap-ms = <175>;
             bindings = <&mo>, <&kp>;
         };
 
