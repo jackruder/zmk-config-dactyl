@@ -33,7 +33,7 @@
 #define G_KAPPA    &uc 0x03BA 0        // κ         (?k)
 #define G_LAMBDA   &uc 0x03BB 0x039B   // λ / Λ     (?l / ?L)
 #define G_MU       &uc 0x03BC 0        // μ         (?m)
-#define G_NU       &uc 0x03BD 0x2115   // ν / ℕ     (?n / ?N)
+#define G_NU       &uc 0x03BD 0        // ν         (ℕ moved to MBB layer as MB_N)
 #define G_XI       &uc 0x03BE 0x039E   // ξ / Ξ     (?w / ?W — cdlatex maps w→xi)
 #define G_OMICRON  &uc 0x03BF 0        // ο         (rare; not in cdlatex)
 #define G_PI       &uc 0x03C0 0x03A0   // π / Π     (?p / ?P)

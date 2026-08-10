@@ -367,18 +367,18 @@
         //   first two entries per key.
         //   MATH position → cdlatex trigger correspondence (Dvorak):
         //     a → α    d → δ    e → ε    g → γ    l → λ    o → ω    p → π
-        //     s → σ    t → τ    u → υ    n → ν    r → ρ    m → μ    h → η
-        //     k → κ    b → β    z → ζ    x → χ    y → ψ    f → φ    q → θ
-        //     w → ξ    v → ∨    . → …    ' → ′
+        //     s → σ    t → τ    u → υ    r → ρ    m → μ    h → θ    n → η
+        //     v → ν    k → κ    b → β    z → ζ    x → χ    y → ψ    f → φ
+        //     w → ξ    . → …    ' → ′  (q free, ∨ dropped)
         math_layer {
             bindings = <
 &trans     &trans      &trans      M_LDOTS     G_PI        G_PSI           G_PHI       G_GAMMA     &trans      G_RHO       G_LAMBDA    &trans
-&trans     G_ALPHA     G_OMEGA     G_EPS       G_UPS       &trans          G_DELTA     G_ETA       G_TAU       G_NU        G_SIGMA     &trans
-&trans     M_PRIME     G_THETA     &trans      G_KAPPA     G_CHI           G_BETA      G_MU        G_XI        S_OR        G_ZETA      &trans
+&trans     G_ALPHA     G_OMEGA     G_EPS       G_UPS       &trans          G_DELTA     G_THETA     G_TAU       G_ETA       G_SIGMA     &trans
+&trans     M_PRIME     &trans      &trans      G_KAPPA     G_CHI           G_BETA      G_MU        G_XI        G_NU        G_ZETA      &trans
 
-                       &sl MCAL    &sl MBB                                                         &sl MFRK    &trans
+                       A_LEFT      A_RIGHT                                                         A_DOWN      A_UP
 
-                                   &trans          &trans              &trans          &trans
+                                   &sl MCAL    &sl MFRK             &trans          &sl MBB
                                                &trans      &trans          &trans      &trans
                                                &trans      &trans          &trans      &trans
             >;
