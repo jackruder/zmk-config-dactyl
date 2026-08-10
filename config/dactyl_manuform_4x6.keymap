@@ -98,8 +98,13 @@
 #define X_REDO   &kp LC(Y)
 
 // ADJUST-layer thumb access (dactyl bonus; smaller boards still use the
-// SYM+NAV tri-layer fallback). Tap = one-shot ADJUST, hold = momentary.
-#define ADJ      &slh ADJUST ADJUST
+// SYM+NAV tri-layer fallback). TEMPORARILY &kp F13 for troubleshooting —
+// press this key, watch xev/wev. If F13 fires, the position works and
+// the previous `&slh ADJUST ADJUST` was misbehaving; if nothing fires,
+// the RC(4,8) switch/wiring is the problem. Revert to
+//   #define ADJ  &slh ADJUST ADJUST
+// once diagnosed.
+#define ADJ      &kp F13
 
 // Sticky-hybrid modifier fills for dactyl bot thumbs — tap = one-shot mod,
 // hold = held mod. Enables same-hand mod combos that HRM's positional
