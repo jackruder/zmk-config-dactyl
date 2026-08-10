@@ -97,11 +97,12 @@
 #define X_PASTE  &kp LC(V)
 #define X_REDO   &kp LC(Y)
 
-// ADJUST-layer thumb access (dactyl bonus; smaller boards still use the
-// SYM+NAV tri-layer fallback). Plain layer-switch: tap to enter ADJUST,
-// stay there until an explicit exit (top-left &to BASE / top-right
-// &to QWERTY / mid-right &to ALT).
-#define ADJ      &to ADJUST
+// R bot inner thumb. NOT ADJUST-entry — ZMK's conditional_layers
+// deactivates its then-layer whenever if-layers aren't all active,
+// which fights any direct &mo/&to ADJUST from here. ADJUST is entered
+// via the SYM+NAV tri-layer instead. This slot is &studio_unlock so
+// Studio can be unlocked without first entering ADJUST.
+#define ADJ      &studio_unlock
 
 // Sticky-hybrid modifier fills for dactyl bot thumbs — tap = one-shot mod,
 // hold = held mod. Enables same-hand mod combos that HRM's positional
