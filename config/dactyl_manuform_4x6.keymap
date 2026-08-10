@@ -142,6 +142,7 @@
         // opposite hand (+ thumbs) as valid interrupters.
         tpl: tap_preferred_left {
             compatible = "zmk,behavior-hold-tap";
+            display-name = "HRM (L)";
             #binding-cells = <2>;
             flavor = "tap-preferred";
             tapping-term-ms = <200>;
@@ -153,6 +154,7 @@
 
         tpr: tap_preferred_right {
             compatible = "zmk,behavior-hold-tap";
+            display-name = "HRM (R)";
             #binding-cells = <2>;
             flavor = "tap-preferred";
             tapping-term-ms = <200>;
@@ -168,6 +170,7 @@
         //   Usage: &sh LSHFT LSHFT
         sh: sticky_hold_mod {
             compatible = "zmk,behavior-hold-tap";
+            display-name = "Sticky/Hold";
             #binding-cells = <2>;
             flavor = "hold-preferred";
             tapping-term-ms = <200>;
@@ -180,6 +183,7 @@
         //   Usage: &slh SYM SYM
         slh: sticky_hold_layer {
             compatible = "zmk,behavior-hold-tap";
+            display-name = "Sticky Layer";
             #binding-cells = <2>;
             flavor = "hold-preferred";
             tapping-term-ms = <200>;
@@ -195,6 +199,7 @@
         //   Usage: &lh NAV BSPC
         lh: layer_hold_preferred {
             compatible = "zmk,behavior-hold-tap";
+            display-name = "Layer/Tap (H)";
             #binding-cells = <2>;
             flavor = "hold-preferred";
             tapping-term-ms = <200>;
@@ -208,6 +213,7 @@
         //   Usage: &ltp NAV SPACE
         ltp: layer_tap_preferred {
             compatible = "zmk,behavior-hold-tap";
+            display-name = "Layer/Tap (T)";
             #binding-cells = <2>;
             flavor = "tap-preferred";
             tapping-term-ms = <300>;
@@ -222,6 +228,7 @@
         //   Usage: &hp LGUI C_AC_ZOOM_IN
         hp: hp_hold_preferred_mod {
             compatible = "zmk,behavior-hold-tap";
+            display-name = "Mod/Tap";
             #binding-cells = <2>;
             flavor = "hold-preferred";
             tapping-term-ms = <150>;
@@ -233,6 +240,7 @@
         compatible = "zmk,keymap";
 
         base_layer {
+            display-name = "Base";
             bindings = <
 &kp CARET  &kp SEMI    &kp COMMA   &kp DOT     &kp P       &kp Y           &kp F       &kp G       &kp C       &kp R       &kp L       &kp UNDER
 &kp TAB    &kp A       &tpl LGUI O &tpl LALT E &tpl LCTL U &kp I           &kp D       &tpr RCTL H &tpr RALT T &tpr RGUI N &kp S       &kp BSLH
@@ -247,6 +255,7 @@
         };
 
         sym_layer {
+            display-name = "Sym";
             bindings = <
 &trans   &kp CARET   &kp LT      &kp GT      &kp DLLR    &kp PRCNT       &kp AT      &kp AMPS    &kp STAR    &kp SQT     &kp GRAVE   &trans
 &trans   &kp LPAR    &kp LBRC    &kp RBRC    &kp RPAR    &kp EQUAL       &kp BSLH    &kp PLUS    &kp MINUS   &kp FSLH    &kp HASH    &trans      
@@ -271,6 +280,7 @@
         //                if you later enable ZMK pointing (currently &none).
         //   thumbs     = caps_word, chain into FN (see behavior comments).
         nav_layer {
+            display-name = "Nav";
             bindings = <
 &trans     &none          &kp C_AC_CLOSE  &kp C_AC_BACK    &kp C_AC_FORWARD    &kp C_AC_OPEN                    &kp HOME    &kp PG_DN   &kp PG_UP   &kp END     &kp DEL     &trans
 &trans     &kp C_AC_SAVE  &hp LGUI C_AC_ZOOM_IN  &hp LALT C_AC_ZOOM_OUT  &hp LCTL C_AC_FAVORITES   &none           &kp LEFT    &kp DOWN    &kp UP      &kp RIGHT   &none       &trans
@@ -286,6 +296,7 @@
 
         // NUM layer — entered by holding L or R mid-inner thumb.
         num_layer {
+            display-name = "Num";
             bindings = <
 &trans     &trans      &kp AT      &kp HASH      &kp PRCNT   &kp EXCL        &kp AMPS    &kp STAR    &kp LPAR    &kp RPAR    &trans      &trans
 &trans     &kp N7      &kp N5      &kp N3      &kp N1      &kp N9          &kp N0      &kp N2      &kp N4      &kp N6      &kp N8      &trans
@@ -302,6 +313,7 @@
         // FN layer — chained from NAV: while NAV is held, tap DEL or hold FN
         // on L top-inner, or momentary FN on R top-inner.
         fn_layer {
+            display-name = "Fn";
             bindings = <
 &trans     &kp F11     &kp F12     &kp F13     &kp F14     &kp F15         &trans      &kp C_NEXT       &kp C_VOL_UP     &kp C_BRI_UP      &trans      &trans
 &trans     &kp F1      &kp F2      &kp F3      &kp F4      &kp F5          &trans      &kp C_PLAY_PAUSE &kp C_MUTE       &kp K_LOCK        &kp PRINTSCREEN &trans
@@ -318,6 +330,7 @@
         // Standard QWERTY. Thumb/extras mirror base so tri-layer to ADJUST still
         // works (hold SYM+NAV, then top-left of ADJUST returns to BASE).
         qwerty_layer {
+            display-name = "QWERTY";
             bindings = <
 &kp TAB    &kp Q       &kp W       &kp E       &kp R       &kp T           &kp Y       &kp U       &kp I       &kp O       &kp P       &kp LBKT
 &kp ESC    &kp A       &tpl LGUI S &tpl LALT D &tpl LCTL F &kp G           &kp H       &tpr RCTL J &tpr RALT K &tpr RGUI L &kp SEMI    &kp SQT
@@ -337,6 +350,7 @@
         // dactyl-only pinky-outer overrides matching BASE's LaTeX-friendly
         // choices (CARET/TAB/FSLH on left; UNDER/SQT/RSHFT on right).
         alt_layer {
+            display-name = "Alt";
             bindings = <
 &kp CARET  &kp Z       &kp L       &kp D       &kp W       &kp B           &kp J       &kp F       &kp O       &kp U       &kp SEMI    &kp UNDER
 &kp TAB    &kp N       &kp R       &tpl LGUI T &tpl LALT S &tpl LCTL G     &kp Y       &tpr RCTL H &tpr RALT E &tpr RGUI I &kp A       &kp SQT 
@@ -361,6 +375,7 @@
         //     v → ν    k → κ    b → β    z → ζ    x → χ    y → ψ    f → φ
         //     w → ξ    . → …    ' → ′  (q free, ∨ dropped)
         math_layer {
+            display-name = "Math";
             bindings = <
 &trans     &trans      &trans      M_LDOTS     G_PI        G_PSI           G_PHI       G_GAMMA     &trans      G_RHO       G_LAMBDA    &trans
 &trans     G_ALPHA     G_OMEGA     G_EPS       G_UPS       &trans          G_DELTA     G_THETA     G_TAU       G_ETA       G_SIGMA     &trans
@@ -377,6 +392,7 @@
         // MCAL — Mathematical Script (\mathcal). Uppercase-only.
         // Positions aligned to Dvorak base: A → 𝒜, B → ℬ, ..., Z → 𝒵.
         mcal_layer {
+            display-name = "Math Cal";
             bindings = <
 &trans     &trans      &trans      &trans      MC_P        MC_Y            MC_F        MC_G        MC_C        MC_R        MC_L        &trans
 &trans     MC_A        MC_O        MC_E        MC_U        MC_I            MC_D        MC_H        MC_T        MC_N        MC_S        &trans
@@ -392,6 +408,7 @@
 
         // MBB — Double-Struck (\mathbb). Uppercase-only.
         mbb_layer {
+            display-name = "Math BB";
             bindings = <
 &trans     &trans      &trans      &trans      MB_P        MB_Y            MB_F        MB_G        MB_C        MB_R        MB_L        &trans
 &trans     MB_A        MB_O        MB_E        MB_U        MB_I            MB_D        MB_H        MB_T        MB_N        MB_S        &trans
@@ -408,6 +425,7 @@
         // MFRK — Fraktur (\mathfrak). Tap = lowercase (useful for Lie
         // algebras: 𝔤 𝔥 etc.); shift-tap = uppercase (𝔄 𝔅 ...).
         mfrk_layer {
+            display-name = "Math Frk";
             bindings = <
 &trans     &trans      &trans      &trans      MF_P        MF_Y            MF_F        MF_G        MF_C        MF_R        MF_L        &trans
 &trans     MF_A        MF_O        MF_E        MF_U        MF_I            MF_D        MF_H        MF_T        MF_N        MF_S        &trans
@@ -424,6 +442,7 @@
         // ADJUST last so it wins over the alphabet layers (QWERTY/ALT) and
         // math layers when tri-layer (SYM+NAV) or ADJ thumb activates it.
         adjust_layer {
+            display-name = "Adjust";
             bindings = <
 &to BASE   &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_SEL 3 &bt BT_SEL 4  &trans      &trans      &trans      &trans      &trans    &to QWERTY
 &trans     &bt BT_CLR   &out OUT_TOG &sys_reset &studio_unlock &trans      &trans      &trans      &trans      &trans      &trans      &to ALT
