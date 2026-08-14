@@ -8,39 +8,48 @@
 #include "math_doublestruck.h"      // MB_A .. MB_Z (𝔸 .. ℤ)
 #include "math_fraktur.h"           // MF_A .. MF_Z (𝔞 .. ℨ)
 
-// Programmer Dvorak base keymap (Option B: firmware sends Dvorak character
-// names, host OS on plain US QWERTY when using this keyboard).
+// ALT-default keymap (Option B: firmware sends character names directly,
+// host OS stays on plain US QWERTY when using this keyboard).
 //
-// Layers:  (layer INDEX is set by block-order in keymap{}; higher index wins
-//           when multiple are active, so ADJUST is placed last to override
-//           the alphabet layers when tri-layer/ADJ activates)
-//   0 BASE   — Dvorak-Programmer alphabet
-//   1 SYM    — symbols on top row (Programmer Dvorak style), numbers on row 1
-//   2 NAV    — arrows on right home row, home/end/pgup/pgdn above
-//   3 NUM    — numpad / number entry. Entered by holding L or R mid-inner
+// LAYER ORDER IS LOAD-BEARING. Index comes from block-order in keymap{}, and
+// the highest active index wins at any position. So the three ALPHABET layers
+// must sit at the BOTTOM (0-2): an alphabet is fully opaque across all 52
+// positions, so anything stacked above it would be masked. Feature layers go
+// above them, ADJUST last of all.
+//
+//   0 ALT    — DEFAULT alphabet, from cyanophage.github.io/playground.
+//              HRMs on ring/middle/index home row (r/t/s left, h/e/i right).
+//   1 BASE   — Dvorak-Programmer alphabet. Reached via &to BASE on ADJUST.
+//   2 QWERTY — standard QWERTY alphabet. Reached via &to QWERTY on ADJUST.
+//   3 SYM    — symbols on top row (Programmer Dvorak style), numbers on row 1
+//   4 NAV    — arrows on right home row, home/pgdn/pgup/end directly above,
+//              both on index/middle/ring/pinky. DEL on left index row 0.
+//   5 NUM    — numpad / number entry. Entered by holding L or R mid-inner
 //              thumb (which tap to ESC or ENTER respectively).
-//   4 FN     — function / media keys. Chained from NAV: while NAV is held,
+//   6 FN     — function / media keys. Chained from NAV: while NAV is held,
 //              L top-inner (BSPC pos) taps to DEL / holds to FN;
-//              R top-inner (SPACE pos) is momentary FN.
-//   5 QWERTY — standard QWERTY alphabet.
-//   6 ALT    — alternate alphabet layout from cyanophage.github.io/playground.
-//              Same thumb/ext bindings as BASE. HRMs on ring/middle/index
-//              home row (t/s/g on left, e/i/a on right).
-//   7 MATH   — Unicode math/Greek symbols via urob/zmk-unicode. Positions
-//              aligned to Dvorak BASE: tap-sticky MATH (F23 / L mid-outer)
-//              then tap a letter → Greek symbol. Mimics cdlatex ;a → α flow.
-//              Unshifted / shifted (via &uc CP1 CP2) matches cdlatex first
-//              two symbols per key. Requires IBus-capable Linux input method
-//              (UC_MODE_LINUX). Switchable at runtime via &uc UC_SET_*.
+//              R top-inner (SPACE pos) is momentary FN. Row 1 right carries
+//              &hp mod-taps because entering FN pins both thumbs.
+//   7 MATH   — Unicode math/Greek symbols via urob/zmk-unicode. Tap-sticky
+//              MATH (F23 / L mid-outer) then tap a letter → Greek symbol.
+//              Mimics cdlatex ;a → α flow. Unshifted / shifted (via
+//              &uc CP1 CP2) matches cdlatex first two symbols per key.
+//              Requires IBus-capable Linux input method (UC_MODE_LINUX).
+//              Switchable at runtime via &uc UC_SET_*.
+//              NOTE: these positions were laid out against the Dvorak BASE
+//              alphabet, so with ALT as default the letter mnemonic no
+//              longer lines up (α sits on ALT's `n`, etc.). Functional but
+//              needs remapping to ALT positions to restore the mnemonic.
 //   8 MCAL   — Mathematical Script (\mathcal): 𝒜 .. 𝒵. Access: from MATH,
 //              tap L top-outer thumb — arms one-shot MCAL for next letter.
 //   9 MBB    — Double-Struck (\mathbb): 𝔸 .. ℤ. Access: from MATH, R top-outer.
 //  10 MFRK   — Fraktur (\mathfrak): 𝔞/𝔄 .. 𝔷/ℨ. Access: from MATH, L top-inner.
 //              Includes lowercase (Lie algebras) on tap; uppercase on shift.
+//              (MCAL/MBB/MFRK inherit MATH's Dvorak-alignment caveat.)
 //  11 ADJUST — BT profiles + output toggle + layout switch + &studio_unlock.
 //              (tri-layer: SYM+NAV, or R bot-inner thumb via ADJ). ADJUST
-//              top-right = &to QWERTY, top-left = &to BASE. Highest layer
-//              index so it wins over QWERTY/ALT/MATH when active.
+//              top-left = &to BASE, top-right = &to QWERTY, row 1 right
+//              = &to ALT. Highest index so it wins over everything.
 //
 // The matrix transform (see the shield .dtsi) has been reordered so bindings
 // below are written in PHYSICAL rather than matrix-scan order. Each layer
@@ -62,18 +71,21 @@
 // missing: CARET
 // missing: backtick
 
-#define BASE   0
-#define SYM    1
-#define NAV    2
-#define NUM    3
-#define FN     4
-#define QWERTY 5
-#define ALT    6
+// These MUST match the block order inside keymap{} — ZMK assigns the index
+// from block position, not from these names. Alphabets occupy 0-2 so that
+// every feature layer outranks them; see the layer-order note above.
+#define ALT    0   // default layer
+#define BASE   1
+#define QWERTY 2
+#define SYM    3
+#define NAV    4
+#define NUM    5
+#define FN     6
 #define MATH   7
 #define MCAL   8
 #define MBB    9
 #define MFRK   10
-#define ADJUST 11   // Highest index so ADJUST wins over QWERTY/ALT/MATH when tri-layer fires
+#define ADJUST 11   // Highest index so ADJUST wins over everything when tri-layer fires
 
 // Position groups in the physical-order transform (see .dtsi):
 //   alphabet:  0..5  L row 0     6..11 R row 0
@@ -239,6 +251,28 @@
     keymap {
         compatible = "zmk,keymap";
 
+        // DEFAULT alphabet layout — from cyanophage.github.io/playground
+        //   layout=zldwbjfou;\nrtsgyheia'qxmcvkp/,.-^
+        // Cols 1-10 are the layout's 3x10 alpha grid; col 0 and col 11 are
+        // dactyl-only pinky-outer overrides matching BASE's LaTeX-friendly
+        // choices (CARET/TAB/FSLH on left; UNDER/SQT/RSHFT on right).
+        // Must be layer 0 and must stay fully opaque (no &trans) — it is the
+        // bottom of the stack, so a &trans here resolves to nothing.
+        alt_layer {
+            display-name = "Alt";
+            bindings = <
+&kp CARET  &kp Z       &kp L       &kp D       &kp W       &kp B           &kp J       &kp F       &kp O       &kp U       &kp SEMI    &kp UNDER
+&kp TAB    &kp N       &tpl LGUI R &tpl LALT T &tpl LCTL S &kp G           &kp Y       &tpr RCTL H &tpr RALT E &tpr RGUI I &kp A       &kp SQT
+&kp FSLH   &kp Q       &kp X       &kp M       &kp C       &kp V           &kp K       &kp P       &kp BSLH    &kp COMMA   &kp DOT     &kp RSHFT
+
+                       &kp LEFT    &kp RIGHT                                                       &kp DOWN    &kp UP
+
+                                   &sh LSHFT LSHFT &lh NAV BSPC            &ltp NAV SPACE   &slh SYM SYM
+                                               MTH         &lh NUM ESC     &lh NUM RET &kp F24
+                                               SALT        SGUI            ADJ         SCTL
+            >;
+        };
+
         base_layer {
             display-name = "Base";
             bindings = <
@@ -249,6 +283,23 @@
                        &kp LEFT    &kp RIGHT                                                       &kp DOWN    &kp UP
 
                                    &sh LSHFT LSHFT &lh NAV BSPC            &ltp NAV SPACE   &slh SYM SYM
+                                               MTH         &lh NUM ESC     &lh NUM RET &kp F24
+                                               SALT        SGUI            ADJ         SCTL
+            >;
+        };
+
+        // Standard QWERTY. Thumb/extras mirror base so tri-layer to ADJUST still
+        // works (hold SYM+NAV, then top-left of ADJUST returns to BASE).
+        qwerty_layer {
+            display-name = "QWERTY";
+            bindings = <
+&kp TAB    &kp Q       &kp W       &kp E       &kp R       &kp T           &kp Y       &kp U       &kp I       &kp O       &kp P       &kp LBKT
+&kp ESC    &kp A       &tpl LGUI S &tpl LALT D &tpl LCTL F &kp G           &kp H       &tpr RCTL J &tpr RALT K &tpr RGUI L &kp SEMI    &kp SQT
+&kp LSHFT  &kp Z       &kp X       &kp C       &kp V       &kp B           &kp N       &kp M       &kp COMMA   &kp DOT     &kp FSLH    &kp RSHFT
+
+                       &kp LEFT    &kp RIGHT                                                       &kp DOWN    &kp UP
+
+                                   &sh LSHFT LSHFT &lh NAV BSPC        &ltp NAV SPACE   &slh SYM SYM
                                                MTH         &lh NUM ESC     &lh NUM RET &kp F24
                                                SALT        SGUI            ADJ         SCTL
             >;
@@ -275,15 +326,21 @@
         //                HRM positions (LGUI/LALT/LCTL still available on
         //                hold via &hp — arrow + mod works cross-hand).
         //                Row 2: undo/cut/copy/paste/redo via LC(*).
-        //   right hand = arrows on home row, HOME/PG_DN/PG_UP/END on top,
-        //                DEL on right pinky. Row 2 reserved for mouse-scroll
-        //                if you later enable ZMK pointing (currently &none).
+        //   right hand = arrows on home row and HOME/PG_DN/PG_UP/END directly
+        //                above, both on index/middle/ring/pinky (pos 19-22 and
+        //                7-10) so they sit under the resting fingers rather
+        //                than one column inward. The inner stretch column
+        //                (pos 6/18) is left free. DEL moved to left index row 0
+        //                (pos 4); the browser cluster shifted one column out to
+        //                the free pinky slot to make room.
+        //                Row 2 reserved for mouse-scroll if you later enable
+        //                ZMK pointing (currently &none).
         //   thumbs     = caps_word, chain into FN (see behavior comments).
         nav_layer {
             display-name = "Nav";
             bindings = <
-&trans     &none          &kp C_AC_CLOSE  &kp C_AC_BACK    &kp C_AC_FORWARD    &kp C_AC_OPEN                    &kp HOME    &kp PG_DN   &kp PG_UP   &kp END     &kp DEL     &trans
-&trans     &kp C_AC_SAVE  &hp LGUI C_AC_ZOOM_IN  &hp LALT C_AC_ZOOM_OUT  &hp LCTL C_AC_FAVORITES   &none           &kp LEFT    &kp DOWN    &kp UP      &kp RIGHT   &none       &trans
+&trans     &kp C_AC_CLOSE &kp C_AC_BACK   &kp C_AC_FORWARD &kp DEL             &kp C_AC_OPEN            &none   &kp HOME    &kp PG_DN   &kp PG_UP   &kp END     &trans
+&trans     &kp C_AC_SAVE  &hp LGUI C_AC_ZOOM_IN  &hp LALT C_AC_ZOOM_OUT  &hp LCTL C_AC_FAVORITES   &none    &none   &kp LEFT    &kp DOWN    &kp UP      &kp RIGHT   &trans
 &trans     &kp C_AC_UNDO  X_CUT       X_COPY      X_PASTE     X_REDO                   &none       &none       &none       &none       &none       &trans
 
                        &trans      &trans                                                          &trans      &trans
@@ -295,12 +352,23 @@
         };
 
         // NUM layer — entered by holding L or R mid-inner thumb.
+        //   COLON on pos 10 (right pinky row 0, directly above N8) so IP
+        //   addresses / ports / timestamps are typeable without leaving the
+        //   layer. A real &kp COLON, not shift+SEMI — the thumb holding NUM
+        //   makes the shift thumb awkward to reach.
+        //   Row 2 is fully &trans — everything it used to bind is already
+        //   reachable from the alphabet underneath, so don't duplicate it:
+        //     DOT   — pos 34, from ALT's lower right pinky
+        //     CARET — pos 0,  from BASE/ALT outer left pinky row 0
+        //     UNDER — pos 11, from BASE/ALT outer right pinky row 0
+        //   All three are layout-dependent: on BASE pos 34 is Z, and on
+        //   QWERTY pos 0/11 are TAB/LBKT rather than CARET/UNDER.
         num_layer {
             display-name = "Num";
             bindings = <
-&trans     &trans      &kp AT      &kp HASH      &kp PRCNT   &kp EXCL        &kp AMPS    &kp STAR    &kp LPAR    &kp RPAR    &trans      &trans
+&trans     &trans      &kp LPAR    &kp RPAR    &kp EXCL    &kp PRCNT       &kp AT      &kp AMPS    &kp STAR    &kp HASH    &kp COLON   &trans
 &trans     &kp N7      &kp N5      &kp N3      &kp N1      &kp N9          &kp N0      &kp N2      &kp N4      &kp N6      &kp N8      &trans
-&trans     &trans      &trans      &trans      &trans      &kp UNDER       &kp CARET   &trans      &trans      &trans      &trans      &trans
+&trans     &trans      &trans      &trans      &trans      &trans          &trans      &trans      &trans      &trans      &trans      &trans
 
                        &trans      &trans                                                          &trans      &trans
 
@@ -312,11 +380,20 @@
 
         // FN layer — chained from NAV: while NAV is held, tap DEL or hold FN
         // on L top-inner, or momentary FN on R top-inner.
+        //
+        // Row 1 right = &hp mod-taps: tap = media key, hold = modifier, on
+        // the same fingers BASE puts RCTL/RALT/RGUI. Needed because entering
+        // FN pins both thumbs (NAV on pos 41 + FN on pos 42), so the bot-row
+        // sticky mods are physically unreachable, and FN's own bindings
+        // shadow the home-row HRMs. All F-keys are left-hand, so mod+Fn is
+        // cross-hand. &hp (not &tpr): no require-prior-idle-ms gate to eat
+        // the hold right after the thumb chord, and hold-preferred fires the
+        // mod on interrupt instead of waiting out the tapping term.
         fn_layer {
             display-name = "Fn";
             bindings = <
 &trans     &kp F11     &kp F12     &kp F13     &kp F14     &kp F15         &trans      &kp C_NEXT       &kp C_VOL_UP     &kp C_BRI_UP      &trans      &trans
-&trans     &kp F1      &kp F2      &kp F3      &kp F4      &kp F5          &trans      &kp C_PLAY_PAUSE &kp C_MUTE       &kp K_LOCK        &kp PRINTSCREEN &trans
+&trans     &kp F1      &kp F2      &kp F3      &kp F4      &kp F5          &trans      &hp RCTL C_PLAY_PAUSE &hp RALT C_MUTE &hp RGUI K_LOCK &kp PRINTSCREEN &trans
 &trans     &kp F10     &kp F9      &kp F8      &kp F7      &kp F6          &trans      &kp C_PREV       &kp C_VOL_DN     &kp C_BRI_DN      &trans      &trans
 
                        &trans      &trans                                                          &trans      &trans
@@ -324,43 +401,6 @@
                                    &trans          &trans              &trans          &trans
                                                &trans      &trans          &trans      &trans
                                                &trans      &trans          &trans      &trans
-            >;
-        };
-
-        // Standard QWERTY. Thumb/extras mirror base so tri-layer to ADJUST still
-        // works (hold SYM+NAV, then top-left of ADJUST returns to BASE).
-        qwerty_layer {
-            display-name = "QWERTY";
-            bindings = <
-&kp TAB    &kp Q       &kp W       &kp E       &kp R       &kp T           &kp Y       &kp U       &kp I       &kp O       &kp P       &kp LBKT
-&kp ESC    &kp A       &tpl LGUI S &tpl LALT D &tpl LCTL F &kp G           &kp H       &tpr RCTL J &tpr RALT K &tpr RGUI L &kp SEMI    &kp SQT
-&kp LSHFT  &kp Z       &kp X       &kp C       &kp V       &kp B           &kp N       &kp M       &kp COMMA   &kp DOT     &kp FSLH    &kp RSHFT
-
-                       &kp LEFT    &kp RIGHT                                                       &kp DOWN    &kp UP
-
-                                   &sh LSHFT LSHFT &lh NAV BSPC        &ltp NAV SPACE   &slh SYM SYM
-                                               MTH         &lh NUM ESC     &lh NUM RET &kp F24
-                                               SALT        SGUI            ADJ         SCTL
-            >;
-        };
-
-        // Alternate alphabet layout — from cyanophage.github.io/playground
-        //   layout=zldwbjfou;\nrtsgyheia'qxmcvkp/,.-^
-        // Cols 1-10 are the layout's 3x10 alpha grid; col 0 and col 11 are
-        // dactyl-only pinky-outer overrides matching BASE's LaTeX-friendly
-        // choices (CARET/TAB/FSLH on left; UNDER/SQT/RSHFT on right).
-        alt_layer {
-            display-name = "Alt";
-            bindings = <
-&kp CARET  &kp Z       &kp L       &kp D       &kp W       &kp B           &kp J       &kp F       &kp O       &kp U       &kp SEMI    &kp UNDER
-&kp TAB    &kp N       &tpl LGUI R &tpl LALT T &tpl LCTL S &kp G           &kp Y       &tpr RCTL H &tpr RALT E &tpr RGUI I &kp A       &kp SQT
-&kp FSLH   &kp Q       &kp X       &kp M       &kp C       &kp V           &kp K       &kp P       &kp BSLH    &kp COMMA   &kp DOT     &kp RSHFT
-
-                       &kp LEFT    &kp RIGHT                                                       &kp DOWN    &kp UP
-
-                                   &sh LSHFT LSHFT &lh NAV BSPC            &ltp NAV SPACE   &slh SYM SYM
-                                               MTH         &lh NUM ESC     &lh NUM RET &kp F24
-                                               SALT        SGUI            ADJ         SCTL
             >;
         };
 
